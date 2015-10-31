@@ -32,6 +32,10 @@ Style/AlignParameters:
 Style/IndentHash:
   EnforcedStyle: consistent
 
+Style/AlignHash:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+
 Style/SpaceAroundOperators:
   MultiSpaceAllowedForOperators:
     - '='

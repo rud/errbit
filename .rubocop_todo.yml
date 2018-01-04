@@ -113,12 +113,6 @@ Lint/AmbiguousBlockAssociation:
     - 'spec/interactors/resolved_problem_clearer_spec.rb'
 
 # Offense count: 2
-Lint/DuplicateMethods:
-  Exclude:
-    - 'app/models/watcher.rb'
-    - 'lib/airbrake_api/v3/notice_parser.rb'
-
-# Offense count: 2
 Lint/ImplicitStringConcatenation:
   Exclude:
     - 'app/models/notification_services/gtalk_service.rb'

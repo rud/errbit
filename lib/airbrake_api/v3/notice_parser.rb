@@ -3,7 +3,7 @@ module AirbrakeApi
     class NoticeParser
       class ParamsError < StandardError; end
 
-      attr_reader :params, :error
+      attr_reader :params
 
       def initialize(params)
         @params = params || {}

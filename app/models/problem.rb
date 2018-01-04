@@ -227,7 +227,7 @@ class Problem
   def issue_type
     # Return issue_type if configured, but fall back to detecting app's issue tracker
     attributes['issue_type'] ||=
-    (app.issue_tracker_configured? && app.issue_tracker.type_tracker) || nil
+      (app.issue_tracker_configured? && app.issue_tracker.type_tracker) || nil
   end
 
 private

@@ -23,7 +23,7 @@ module ErrbitPlugin
     end
 
     def configured?
-      !errors.any?
+      errors.none?
     end
 
     def errors

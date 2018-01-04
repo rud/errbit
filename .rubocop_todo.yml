@@ -304,14 +304,6 @@ Style/HashSyntax:
 Style/IfUnlessModifier:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: InverseMethods, InverseBlocks.
-Style/InverseMethods:
-  Exclude:
-    - 'app/models/app.rb'
-    - 'spec/errbit_plugin/mock_issue_tracker.rb'
-
 # Offense count: 1
 Style/MixinUsage:
   Exclude:

@@ -14,13 +14,6 @@ Bundler/OrderedGems:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/EmptyLineAfterMagicComment:
-  Exclude:
-    - 'app/helpers/notices_helper.rb'
-    - 'app/helpers/sort_helper.rb'
-
 # Offense count: 12
 # Cop supports --auto-correct.
 Layout/EmptyLinesAroundArguments:

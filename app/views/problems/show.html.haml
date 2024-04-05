@@ -9,6 +9,8 @@
   %br
   %strong= t('.environment') + ':'
   = problem.environment
+  %strong= t('.first_notice') + ':'
+  = problem.first_notice_at.to_s(:precise)
   %strong= t('.last_notice') + ':'
   = problem.last_notice_at.to_s(:precise)
 - content_for :action_bar do
@@ -26,7 +28,7 @@
 
 - content_for :comments do
   %h3= t('.comments')
-  - problem.comments.each do |comment|
+  - problem.comments.ordered.each do |comment|
     .window
       %table.comment
         %tr
@@ -43,7 +45,7 @@
             %span.delete= link_to '&#10008;'.html_safe, [app, problem, comment], :method => :delete,
               :data => { :confirm => t("comments.confirm_delete") }, :class => "destroy-comment"
         %tr
-          %td= simple_format comment.body
+          %td= auto_link_format(comment.body)
   = form_for [app, problem, @comment] do |comment_form|
     %p= t('.add_a_comment')
     = comment_form.text_area :body
@@ -51,7 +53,10 @@
 
 %h4= @notice.try(:message)
 
-= paginate @notices, :param_name => :notice, :theme => :notices
+- if params[:notice_id]
+  %p= t('.notice_by_id', notice_id: params[:notice_id])
+- else
+  = paginate @notices, :param_name => :notice, :theme => :notices
 
 .tab-bar
   %ul

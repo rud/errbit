@@ -2,7 +2,8 @@ class BacktraceLineDecorator < Draper::Decorator
   EMPTY_STRING = ''.freeze
 
   def in_app?
-    object[:file].match Backtrace::IN_APP_PATH
+    return false if file.blank?
+    file.match Backtrace::IN_APP_PATH
   end
 
   def number
@@ -14,7 +15,7 @@ class BacktraceLineDecorator < Draper::Decorator
   end
 
   def file
-    object[:file]
+    object.try(:[], :file).to_s
   end
 
   def method
@@ -40,7 +41,8 @@ class BacktraceLineDecorator < Draper::Decorator
   end
 
   def path
-    File.dirname(object[:file]).gsub(/^\.$/, '') + "/"
+    return '' if file.blank?
+    File.dirname(file).gsub(/^\.$/, '') + "/"
   end
 
   def decorated_path
@@ -62,7 +64,7 @@ private
   end
 
   def link_to_repo_source_file(app, text)
-    link_to_github(app, text) || link_to_bitbucket(app, text)
+    link_to_custom_backtrace_url(app, text) || link_to_github(app, text) || link_to_bitbucket(app, text)
   end
 
   def link_to_hosted_javascript(app, text)
@@ -79,6 +81,12 @@ private
   def link_to_bitbucket(app, text = nil)
     return unless app.bitbucket_repo?
     href = format("%s#%s-%s", app.bitbucket_url_to_file(decorated_path + file_name), file_name, number)
+    h.link_to(text || file_name, href, target: '_blank')
+  end
+
+  def link_to_custom_backtrace_url(app, text = nil)
+    return unless app.custom_backtrace_url_template?
+    href = app.custom_backtrace_url(decorated_path + file_name, number)
     h.link_to(text || file_name, href, target: '_blank')
   end
 

@@ -7,6 +7,7 @@ class App
   field :api_key
   field :github_repo
   field :bitbucket_repo
+  field :custom_backtrace_url_template
   field :asset_host
   field :repository_branch
   field :current_app_version
@@ -195,7 +196,7 @@ class App
     notice_fingerprinter.source == 'site'
   end
 
-protected
+private
 
   def store_cached_attributes_on_problems
     Problem.where(app_id: id).update_all(
@@ -219,7 +220,7 @@ protected
   def normalize_github_repo
     return if github_repo.blank?
     github_host = URI.parse(Errbit::Config.github_url).host
-    github_host = Regexp.escape(github_host)
+    github_host = ::Regexp.escape(github_host)
     github_repo.strip!
     github_repo.sub!(%r{(git@|https?://)#{github_host}(/|:)}, '')
     github_repo.sub!(/\.git$/, '')

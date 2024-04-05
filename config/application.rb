@@ -1,4 +1,4 @@
-require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
 require 'action_controller/railtie'
 require 'action_mailer/railtie'
@@ -15,12 +15,12 @@ module Errbit
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
-    # Custom directories with classes and modules you want to be autoloadable.
-    config.autoload_paths += [Rails.root.join('lib')]
+    # Custom directories with classes and modules you want to eager load.
+    config.eager_load_paths << Rails.root.join('lib').to_s
 
     config.before_initialize do
       config.secret_key_base = Errbit::Config.secret_key_base
-      config.serve_static_files = Errbit::Config.serve_static_assets
+      config.public_file_server.enabled = Errbit::Config.serve_static_assets
     end
 
     initializer 'errbit.mongoid', before: 'mongoid.load-config' do

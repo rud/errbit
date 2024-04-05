@@ -5,8 +5,8 @@ module AirbrakeApi
 
       attr_reader :params, :error
 
-      def initialize(params)
-        @params = params || {}
+      def initialize(params = {})
+        @params = params.is_a?(ActionController::Parameters) ? params.to_unsafe_h : params
       end
 
       def attributes
@@ -69,7 +69,8 @@ module AirbrakeApi
       end
 
       def user_attributes
-        return context['user'] if context['user']
+        user = context['user']
+        return user.is_a?(Hash) ? user : { user: user } if user
 
         {
           'id'       => context['userId'],

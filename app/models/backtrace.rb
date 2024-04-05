@@ -2,8 +2,8 @@ class Backtrace
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  IN_APP_PATH = %r{^\[PROJECT_ROOT\](?!(\/vendor))/?}
-  GEMS_PATH = %r{\[GEM_ROOT\]\/gems\/([^\/]+)}
+  IN_APP_PATH = %r{^(?:\[|/)PROJECT_ROOT\]?(?!(/vendor))/?}
+  GEMS_PATH = %r{(?:\[|/)GEM_ROOT\]?/gems/([^/]+)}
 
   field :fingerprint
   field :lines
@@ -22,7 +22,9 @@ class Backtrace
     Digest::SHA1.hexdigest(lines.map(&:to_s).join)
   end
 
-  private def generate_fingerprint
+private
+
+  def generate_fingerprint
     self.fingerprint = self.class.generate_fingerprint(lines)
   end
 end

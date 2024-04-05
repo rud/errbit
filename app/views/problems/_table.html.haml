@@ -1,26 +1,30 @@
 - any_issue_links = problems.any?{|e| e.issue_link.present? && e.issue_link != 'pending' }
+- on_page_that_can_include_multiple_different_apps = params[:controller] == 'problems'
 =form_tag do
   %table.errs.selectable
     %thead
       %tr
         %th= check_box_tag "toggle_problems_checkboxes"
-        %th= link_for_sort t('.app')
+        - if on_page_that_can_include_multiple_different_apps
+          %th= link_for_sort t('.app')
+        - else
+          %th= link_for_sort t('.env'), 'environment'
         %th= link_for_sort t('.what_&_where').html_safe, "message"
         %th= link_for_sort t('.latest'), "last_notice_at"
-        %th= link_for_sort t('.count')
+        %th.count-header= link_for_sort t('.count')
         - if any_issue_links
           %th Issue
         %th= t('.resolve')
     %tbody
-      - problems.each do |problem|
+      - ProblemDecorator.decorate_collection(problems).each do |problem|
         %tr{:class => problem.resolved? ? 'resolved' : 'unresolved'}
           %td.select.narrow-as-possible
             %div.td-container
               = check_box_tag "problems[]", problem.id, selected_problems.member?(problem.id.to_s)
           %td.app
             %div.td-container
-              = link_to problem.app.name, app_path(problem.app), class: 'name nowrap', title: problem.app.name
-              - if current_page?(:controller => 'problems')
+              - if on_page_that_can_include_multiple_different_apps
+                = link_to problem.app.name, app_path(problem.app), class: 'name nowrap', title: problem.app.name
                 %span.environment{class: 'nowrap', title: problem.environment}
                   = link_to problem.environment, problems_path(:environment => problem.environment)
               - else
@@ -28,7 +32,7 @@
                   = link_to problem.environment, app_path(problem.app, :environment => problem.environment)
           %td.message
             %div.td-container
-              = link_to problem.message, app_problem_path(problem.app, problem), class: 'nowrap', title: problem.message
+              = link_to problem.link_text, app_problem_path(problem.app, problem), class: 'nowrap', title: problem.message
               %em{class: 'nowrap', title: problem.where}= problem.where
               - if problem.comments_count > 0
                 - comment = problem.comments.last

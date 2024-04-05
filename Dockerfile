@@ -1,25 +1,17 @@
-FROM ruby:2.3.3-alpine
+FROM ruby:2.7.6-alpine
 LABEL maintainer="David Papp <david@ghostmonitor.com>"
 
-ARG UID=101
-ARG GID=101
+ENV RUBYGEMS_VERSION=3.3.21
+ENV BUNDLER_VERSION=2.3.21
 
-RUN addgroup -g $GID -S errbit \
-  && adduser -u $UID -S -D -s /bin/false -G errbit -g errbit errbit
+WORKDIR /app
 
 # throw errors if Gemfile has been modified since Gemfile.lock
 RUN echo "gem: --no-document" >> /etc/gemrc \
   && bundle config --global frozen 1 \
-  && bundle config --global clean true \
-  && bundle config --global disable_shared_gems false
-
-RUN mkdir -p /app \
-  && chown -R errbit:errbit /app \
-  && chmod 705 /app/
-WORKDIR /app
-
-RUN gem update --system \
-  && gem install bundler \
+  && bundle config --global disable_shared_gems false \
+  && gem update --system "$RUBYGEMS_VERSION" \
+  && gem install bundler --version "$BUNDLER_VERSION" \
   && apk add --no-cache \
     curl \
     less \
@@ -28,26 +20,30 @@ RUN gem update --system \
     nodejs \
     tzdata
 
-EXPOSE 8080
+COPY [".ruby-version", "Gemfile", "Gemfile.lock", "/app/"]
 
-COPY ["Gemfile", "Gemfile.lock", "/app/"]
-
-RUN apk add --no-cache --virtual build-dependencies \
-      build-base \
+RUN apk add --no-cache --virtual build-dependencies build-base \
   && bundle config build.nokogiri --use-system-libraries \
-  && bundle install \
-      -j "$(getconf _NPROCESSORS_ONLN)" \
-      --retry 5 \
-      --without test development no_docker \
+  && bundle config set without 'test development no_docker' \
+  && bundle install -j "$(getconf _NPROCESSORS_ONLN)" --retry 5 \
+  && bundle clean --force \
   && apk del build-dependencies
 
 COPY . /app
 
-RUN RAILS_ENV=production bundle exec rake assets:precompile
-RUN chown -R errbit:errbit /app
+RUN RAILS_ENV=production bundle exec rake assets:precompile \
+  && rm -rf /app/tmp/* \
+  && chmod 777 /app/tmp
 
-USER errbit
+ENV RAILS_ENV production
 
-HEALTHCHECK CMD curl --fail "http://$(/sbin/ip route | /usr/bin/awk '/src/{print $NF}'):8080/users/sign_in" ||  exit 1
+ENV RAILS_LOG_TO_STDOUT true
 
-CMD ["bundle","exec","puma","-C","config/puma.default.rb"]
+ENV RAILS_SERVE_STATIC_FILES true
+
+EXPOSE 8080
+
+HEALTHCHECK CMD curl --fail "http://$(/bin/hostname -i | /usr/bin/awk '{ print $1 }'):${PORT:-8080}/users/sign_in" || exit 1
+
+CMD ["bundle", "exec", "puma", "-C", "config/puma.default.rb"]
+

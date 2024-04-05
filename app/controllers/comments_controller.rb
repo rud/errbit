@@ -4,9 +4,9 @@ class CommentsController < ApplicationController
   expose :comment
 
   def create
-    if comment.valid?
-      problem.comments << comment
-      problem.save
+    problem.comments << comment
+
+    if problem.save
       flash[:success] = "Comment saved!"
     else
       flash[:error] = "I'm sorry, your comment was blank! Try again?"
@@ -23,7 +23,9 @@ class CommentsController < ApplicationController
     redirect_to app_problem_path(app, problem)
   end
 
-  private def comment_params
+private
+
+  def comment_params
     # merge makes a copy, merge! edits in place
     params.require(:comment).permit!.merge!(user_id: current_user.id)
   end

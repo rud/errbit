@@ -39,7 +39,7 @@ jobs:
       mongo_version:
         type: string
     docker:
-      - image: cimg/ruby:2.7.6-browsers
+      - image: cimg/ruby:2.7.8-browsers
       - image: circleci/mongo:<< parameters.mongo_version >>-ram
     steps:
       - checkout
